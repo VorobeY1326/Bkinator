@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="protobuf-net">
+      <HintPath>..\packages\protobuf-net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -43,6 +46,7 @@
     <Compile Include="Answer.cs" />
     <Compile Include="AnsweredQuestion.cs" />
     <Compile Include="AnswerGuess.cs" />
+    <Compile Include="BkinatorState.cs" />
     <Compile Include="QuestionStatistic.cs" />
     <Compile Include="AnswerStatistic.cs" />
     <Compile Include="Genie.cs" />

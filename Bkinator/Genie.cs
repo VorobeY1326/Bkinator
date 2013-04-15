@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ProtoBuf;
 
 namespace Bkinator
 {
@@ -11,12 +12,22 @@ namespace Bkinator
      * http://habrahabr.ru/post/84364/ ( author isn't me )
      * 
      */
+    [ProtoContract]
     public class Genie
     {
+        [ProtoMember(1)]
         private readonly IList<AnswerStatistic> knowledgeBase;
-        private readonly IList<string> questionIds; 
+        [ProtoMember(2)]
+        private readonly IList<string> questionIds;
+        [ProtoMember(3)]
         private readonly double answersGuessedCount;
+        [ProtoMember(4)]
         private readonly int answeringChoicesCount;
+
+// ReSharper disable UnusedMember.Local
+        private Genie()
+        {}
+// ReSharper restore UnusedMember.Local
 
         public Genie(IList<AnswerStatistic> knowledgeBase, int answeringChoicesCount)
         {

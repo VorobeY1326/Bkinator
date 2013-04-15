@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BkinatorStateTest.cs" />
     <Compile Include="GenieGuessTest.cs" />
     <Compile Include="GenieNextQuestionTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
