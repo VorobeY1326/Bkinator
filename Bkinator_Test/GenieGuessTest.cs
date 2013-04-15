@@ -33,7 +33,7 @@ namespace Bkinator_Test
                                     {"1", new QuestionStatistic {ChoicesFrequencies = new[] {1, 2}}}
                                 }
                         }
-                }, 1, 2);
+                }, 2);
         }
 
         private void SetUpComplex()
@@ -69,14 +69,14 @@ namespace Bkinator_Test
                                     {"3", new QuestionStatistic {ChoicesFrequencies = new[] {5, 1}}}
                                 }
                         }
-                }, 1, 2);
+                }, 2);
         }
 
         [Test]
         public void SimpleTest()
         {
             SetUpSimple();
-            var answer = genie.GetTopGuessesAndNextQuestionId(new List<AnsweredQuestion> {new AnsweredQuestion {Choise = 0, QuestionId = "1"}}).Item1.ToList();
+            var answer = genie.GetAnswerGuesses(new List<AnsweredQuestion> {new AnsweredQuestion {Choise = 0, QuestionId = "1"}});
             Assert.AreEqual(2, answer.Count);
             Assert.AreEqual("1", answer[0].AnswerId);
             Assert.AreEqual("2", answer[1].AnswerId);
@@ -89,7 +89,7 @@ namespace Bkinator_Test
         public void NoQuestionsAskedTest()
         {
             SetUpSimple();
-            var answer = genie.GetTopGuessesAndNextQuestionId(new List<AnsweredQuestion>()).Item1.ToList();
+            var answer = genie.GetAnswerGuesses(new List<AnsweredQuestion>()).ToList();
             Assert.AreEqual(2, answer.Count);
             Assert.AreEqual(answer[0].Probability, 0.5, 1e-5);
             Assert.AreEqual(answer[1].Probability, 0.5, 1e-5);
@@ -101,7 +101,7 @@ namespace Bkinator_Test
         {
             SetUpComplex();
             var answer =
-                genie.GetTopGuessesAndNextQuestionId(new List<AnsweredQuestion> { new AnsweredQuestion { Choise = 0, QuestionId = "1" } }).Item1.ToList();
+                genie.GetAnswerGuesses(new List<AnsweredQuestion> { new AnsweredQuestion { Choise = 0, QuestionId = "1" } });
             Assert.AreEqual(3, answer.Count);
             Assert.AreEqual("1", answer[0].AnswerId);
             Assert.Greater(answer[0].Probability, 0.4);
@@ -113,7 +113,7 @@ namespace Bkinator_Test
         {
             SetUpComplex();
             var answer =
-                genie.GetTopGuessesAndNextQuestionId(new List<AnsweredQuestion> { new AnsweredQuestion { Choise = 1, QuestionId = "3" } }).Item1.ToList();
+                genie.GetAnswerGuesses(new List<AnsweredQuestion> {new AnsweredQuestion {Choise = 1, QuestionId = "3"}});
             Assert.AreEqual(3, answer.Count);
             Assert.AreEqual("2", answer[0].AnswerId);
             Assert.Greater(answer[0].Probability, 0.4);
@@ -124,7 +124,7 @@ namespace Bkinator_Test
         public void ComplexNoQuestionsTest()
         {
             SetUpComplex();
-            var answer = genie.GetTopGuessesAndNextQuestionId(new List<AnsweredQuestion> ()).Item1.ToList();
+            var answer = genie.GetAnswerGuesses(new List<AnsweredQuestion> ());
             Assert.AreEqual(3, answer.Count);
             Assert.AreEqual("1", answer[0].AnswerId);
             Assert.AreEqual("2", answer[1].AnswerId);
@@ -138,12 +138,12 @@ namespace Bkinator_Test
         {
             SetUpComplex();
             var answer =
-                genie.GetTopGuessesAndNextQuestionId(new List<AnsweredQuestion>
+                genie.GetAnswerGuesses(new List<AnsweredQuestion>
                     {
                         new AnsweredQuestion { Choise = 0, QuestionId = "1" },
                         new AnsweredQuestion { Choise = 0, QuestionId = "2" },
                         new AnsweredQuestion { Choise = 0, QuestionId = "3" }
-                    }).Item1.ToList();
+                    });
             Assert.AreEqual(3, answer.Count);
             Assert.AreEqual("3", answer[0].AnswerId);
             Assert.Greater(answer[0].Probability, 0.6);

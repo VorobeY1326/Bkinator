@@ -23,11 +23,12 @@ namespace Bkinator_Test
                                 }
                         }
                 };
-            var genie = new Genie(knowledgeBase, 1, 2);
-            var nextQuestionId = genie.GetTopGuessesAndNextQuestionId(new List<AnsweredQuestion>
+            var genie = new Genie(knowledgeBase, 2);
+            var answeredQuestions = new List<AnsweredQuestion>
                 {
                     new AnsweredQuestion {Choise = 1, QuestionId = "1"}
-                }).Item2;
+                };
+            var nextQuestionId = genie.GetNextQuestionId(answeredQuestions, genie.GetAnswerGuesses(answeredQuestions));
             Assert.AreEqual("2", nextQuestionId);
         }
 
@@ -47,8 +48,9 @@ namespace Bkinator_Test
                                 }
                         }
                 };
-            var genie = new Genie(knowledgeBase, 2, 2);
-            var nextQuestionId = genie.GetTopGuessesAndNextQuestionId(new List<AnsweredQuestion>()).Item2;
+            var genie = new Genie(knowledgeBase, 2);
+            var answeredQuestions = new List<AnsweredQuestion>();
+            var nextQuestionId = genie.GetNextQuestionId(answeredQuestions, genie.GetAnswerGuesses(answeredQuestions));
             Assert.AreEqual("2", nextQuestionId);
         }
 
@@ -67,8 +69,9 @@ namespace Bkinator_Test
                                 }
                         }
                 };
-            var genie = new Genie(knowledgeBase, 1, 2);
-            var nextQuestionId = genie.GetTopGuessesAndNextQuestionId(new List<AnsweredQuestion>{new AnsweredQuestion{Choise = 1, QuestionId = "1"}}).Item2;
+            var genie = new Genie(knowledgeBase, 2);
+            var answeredQuestions = new List<AnsweredQuestion> {new AnsweredQuestion {Choise = 1, QuestionId = "1"}};
+            var nextQuestionId = genie.GetNextQuestionId(answeredQuestions, genie.GetAnswerGuesses(answeredQuestions));
             Assert.AreEqual(null, nextQuestionId);
         }
 
@@ -89,8 +92,9 @@ namespace Bkinator_Test
                                 }
                         }
                 };
-            var genie = new Genie(knowledgeBase, 2, 3);
-            var nextQuestionId = genie.GetTopGuessesAndNextQuestionId(new List<AnsweredQuestion>{new AnsweredQuestion{Choise = 1, QuestionId = "2"}}).Item2;
+            var genie = new Genie(knowledgeBase, 3);
+            var answeredQuestions = new List<AnsweredQuestion> {new AnsweredQuestion {Choise = 1, QuestionId = "2"}};
+            var nextQuestionId = genie.GetNextQuestionId(answeredQuestions, genie.GetAnswerGuesses(answeredQuestions));
             Assert.AreEqual("3", nextQuestionId);
         }
 
@@ -122,8 +126,9 @@ namespace Bkinator_Test
                                 }
                         }
                 };
-            var genie = new Genie(knowledgeBase, 3, 2);
-            var nextQuestionId = genie.GetTopGuessesAndNextQuestionId(new List<AnsweredQuestion>()).Item2;
+            var genie = new Genie(knowledgeBase, 2);
+            var answeredQuestions = new List<AnsweredQuestion>();
+            var nextQuestionId = genie.GetNextQuestionId(answeredQuestions, genie.GetAnswerGuesses(answeredQuestions));
             Assert.AreEqual("3", nextQuestionId);
         }
     }

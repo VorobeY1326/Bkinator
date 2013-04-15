@@ -14,39 +14,19 @@ namespace Bkinator
     public class Genie
     {
         private readonly IList<AnswerStatistic> knowledgeBase;
-        private readonly IDictionary<string, QuestionStatistic> questionsSummaryStatistics; 
         private readonly IList<string> questionIds; 
         private readonly double answersGuessedCount;
-        private readonly double questionsCount;
         private readonly int answeringChoicesCount;
 
-        public Genie(IList<AnswerStatistic> knowledgeBase, int questionsCount, int answeringChoicesCount)
+        public Genie(IList<AnswerStatistic> knowledgeBase, int answeringChoicesCount)
         {
             this.knowledgeBase = knowledgeBase;
-            this.questionsCount = questionsCount;
             this.answeringChoicesCount = answeringChoicesCount;
             answersGuessedCount = knowledgeBase.Sum(s => s.AnswerCount);
-            questionsSummaryStatistics = CountQuestionsSummaryStatistics();
             questionIds = knowledgeBase.SelectMany(s => s.AnsweredQuestionsById.Keys).Distinct().ToList();
         }
 
-        private IDictionary<string, QuestionStatistic> CountQuestionsSummaryStatistics()
-        {
-            return knowledgeBase.SelectMany(a => a.AnsweredQuestionsById).GroupBy(p => p.Key)
-                                .ToDictionary(g => g.Key, g => new QuestionStatistic
-                                    {
-                                        ChoicesFrequencies = g.Aggregate(new int[answeringChoicesCount], (curr, q) =>
-                                            {
-                                                for (int i = 0; i < answeringChoicesCount; i++)
-                                                {
-                                                    curr[i] += q.Value.ChoicesFrequencies[i];
-                                                }
-                                                return curr;
-                                            })
-                                    });
-        }
-
-        public Tuple<IEnumerable<AnswerGuess>,string> GetTopGuessesAndNextQuestionId(IList<AnsweredQuestion> answeredQuestions)
+        public IList<AnswerGuess> GetAnswerGuesses(IList<AnsweredQuestion> answeredQuestions)
         {
             var answerGuesses = new List<AnswerGuess>();
             double answeredQuestionsProbability = 0;
@@ -67,7 +47,11 @@ namespace Bkinator
             {
                 answerGuess.Probability /= answeredQuestionsProbability;
             }
+            return answerGuesses.OrderByDescending(g => g.Probability).ToList();
+        }
 
+        public string GetNextQuestionId(IList<AnsweredQuestion> answeredQuestions, IList<AnswerGuess> answerGuesses)
+        {
             string nextQuestionId = null;
             double minQuestionEntropy = double.MaxValue;
             var answeredQuestionIds = new HashSet<string>(answeredQuestions.Select(q => q.QuestionId));
@@ -79,13 +63,13 @@ namespace Bkinator
                 double entropy = 0.0;
                 for (int i = 0; i < answeringChoicesCount; i++)
                 {
-                    var answeredQuestion = new AnsweredQuestion {Choise = i, QuestionId = questionId};
+                    var answeredQuestion = new AnsweredQuestion { Choise = i, QuestionId = questionId };
                     foreach (var answerGuess in answerGuesses)
                     {
                         double probability = answerGuess.Probability *
                             GetAnsweringFrequency(answerGuess.AnswerStatistic, answeredQuestion) /
                             GetTotalAnsweringFrequency(answerGuess.AnswerStatistic, answeredQuestion);
-                        entropy +=  - probability*Math.Log(probability, 2.0);
+                        entropy += -probability * Math.Log(probability, 2.0);
                     }
                 }
                 if (entropy < minQuestionEntropy)
@@ -94,8 +78,7 @@ namespace Bkinator
                     nextQuestionId = questionId;
                 }
             }
-
-            return new Tuple<IEnumerable<AnswerGuess>, string>(answerGuesses.OrderByDescending(g => g.Probability), nextQuestionId);
+            return nextQuestionId;
         }
 
         private int GetAnsweringFrequency(AnswerStatistic answerStatistic, AnsweredQuestion answeredQuestion)
