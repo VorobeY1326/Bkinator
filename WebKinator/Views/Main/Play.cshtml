@@ -1,0 +1,29 @@
+﻿@using WebKinator.Models
+@model PLayModel
+
+@{
+    ViewBag.Title = "Bkinator game";
+}
+
+<h2>Вопрос:</h2>
+
+<p>@Model.QuestionString</p>
+
+<h2>Ваш ответ:</h2>
+
+@using (Html.BeginForm("Play", "Main", FormMethod.Post))
+{
+    <input id="choiceId" name="choiceId" type="hidden"/>
+    for (int i = 0; i < Choices.Names.Length; i++ )
+    {
+        <button type="submit" onclick="$('#choiceId').val('@i');">@Choices.Names[i]</button>
+    }
+}
+
+<p>Текущие догадки:</p>
+<ol>
+@foreach (var guess in Model.Guesses)
+{
+    <li>@guess.Item1 (@guess.Item2)</li>
+}
+</ol>

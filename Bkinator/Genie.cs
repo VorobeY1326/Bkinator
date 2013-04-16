@@ -24,6 +24,8 @@ namespace Bkinator
         [ProtoMember(4)]
         private readonly int answeringChoicesCount;
 
+        private const int maxGuesses = 50;
+
 // ReSharper disable UnusedMember.Local
         private Genie()
         {}
@@ -58,7 +60,7 @@ namespace Bkinator
             {
                 answerGuess.Probability /= answeredQuestionsProbability;
             }
-            return answerGuesses.OrderByDescending(g => g.Probability).ToList();
+            return answerGuesses.OrderByDescending(g => g.Probability).Take(maxGuesses).ToList();
         }
 
         public string GetNextQuestionId(IList<AnsweredQuestion> answeredQuestions, IList<AnswerGuess> answerGuesses)
@@ -66,7 +68,6 @@ namespace Bkinator
             string nextQuestionId = null;
             double minQuestionEntropy = double.MaxValue;
             var answeredQuestionIds = new HashSet<string>(answeredQuestions.Select(q => q.QuestionId));
-            //TODO Not all answers, top N only? For speed.
             foreach (var questionId in questionIds)
             {
                 if (answeredQuestionIds.Contains(questionId))
