@@ -36,10 +36,11 @@ namespace WebKinator.Controllers
             if (choiceId == null)
                 return new EmptyResult();
             var playerState = PlayerState.GetPlayerState(Session, state.Genie);
-            playerState.AnsweredQuestions.Add(new AnsweredQuestion
-                {
-                    QuestionId = playerState.CurrentQuestionId, Choise = choiceId.Value
-                });
+            if (playerState.AnsweredQuestions.All(a => a.QuestionId != playerState.CurrentQuestionId))
+                playerState.AnsweredQuestions.Add(new AnsweredQuestion
+                    {
+                        QuestionId = playerState.CurrentQuestionId, Choise = choiceId.Value
+                    });
             playerState.AnswerGuesses = state.Genie.GetAnswerGuesses(playerState.AnsweredQuestions);
             playerState.CurrentQuestionId = state.Genie.GetNextQuestionId(playerState.AnsweredQuestions, playerState.AnswerGuesses);
             if (playerState.CurrentQuestionId == null)
