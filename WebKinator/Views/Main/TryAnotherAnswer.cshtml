@@ -1,0 +1,18 @@
+﻿@model IList<Tuple<string, Bkinator.AnswerGuess>>
+
+@{
+    ViewBag.Title = "Второй шанс";
+}
+
+<h2>Дашь мне второй шанс?</h2>
+
+<p>Может быть, ты загадывал что-нибудь из этого?</p>
+
+<ul>
+    @foreach (var guess in Model)
+    {
+        <li>@Html.ActionLink(guess.Item1 + " (" + guess.Item2.Probability + ")", "Answer", new { answerId = guess.Item2.AnswerId })</li>
+    }
+</ul>
+
+<p>@Html.ActionLink("Нет, ты не угадал.", "AddAnswer")</p>

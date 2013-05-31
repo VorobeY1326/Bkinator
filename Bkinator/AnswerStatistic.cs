@@ -7,10 +7,8 @@ namespace Bkinator
     public class AnswerStatistic
     {
         [ProtoMember(1)]
-        public string AnswerId { get; set; }
-        [ProtoMember(2)]
         public int AnswerCount { get; set; }
-        [ProtoMember(3)]
+        [ProtoMember(2)]
         public IDictionary<string, QuestionStatistic> AnsweredQuestionsById { get; set; }
     }
 }

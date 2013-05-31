@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using ProtoBuf;
 
@@ -24,6 +25,22 @@ namespace Bkinator
             Genie = genie;
             Answers = answers;
             Questions = questions;
+        }
+
+        public string AddNewAnswer(Answer answer, IList<AnsweredQuestion> answeredQuestions)
+        {
+            var answerId = Guid.NewGuid().ToString();
+            Answers.Add(answerId, answer);
+            Genie.UpdateStatisticsByAnswerGuessed(answerId, answeredQuestions);
+            return answerId;
+        }
+
+        public string AddNewQuestion(Question question, IList<Tuple<string, int>> knownAnswers)
+        {
+            var questionId = Guid.NewGuid().ToString();
+            Questions.Add(questionId, question);
+            Genie.UpdateStatisticsByQuestionAdded(questionId, knownAnswers);
+            return questionId;
         }
 
         public void SaveToStream(Stream stream)

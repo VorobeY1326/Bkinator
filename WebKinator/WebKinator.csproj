@@ -66,10 +66,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\AddQuestionModel.cs" />
     <Compile Include="Models\Choices.cs" />
     <Compile Include="Models\PLayModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="State\InitialLoad.cs" />
+    <Compile Include="State\StateSaver.cs" />
     <Compile Include="State\PlayerState.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +152,18 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Main\Answer.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Main\AddAnswer.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Main\AnswerCorrect.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Main\TryAnotherAnswer.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Main\AddQuestion.cshtml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

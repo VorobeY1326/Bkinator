@@ -13,62 +13,57 @@ namespace Bkinator_Test
 
         private void SetUpSimple()
         {
-            genie = new Genie(new List<AnswerStatistic>
+            genie = new Genie(new Dictionary<string, AnswerStatistic>
                 {
-                    new AnswerStatistic
+                    {"1", new AnswerStatistic
                         {
                             AnswerCount = 1,
-                            AnswerId = "1",
                             AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
                                 {
                                     {"1", new QuestionStatistic {ChoicesFrequencies = new[] {2, 1}}}
                                 }
-                        },
-                    new AnswerStatistic
+                        }},
+                    {"2", new AnswerStatistic
                         {
                             AnswerCount = 1,
-                            AnswerId = "2",
                             AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
                                 {
                                     {"1", new QuestionStatistic {ChoicesFrequencies = new[] {1, 2}}}
                                 }
-                        }
+                        }}
                 }, 2);
         }
 
         private void SetUpComplex()
         {
-            genie = new Genie(new List<AnswerStatistic>
+            genie = new Genie(new Dictionary<string, AnswerStatistic>
                 {
-                    new AnswerStatistic
+                    {"1", new AnswerStatistic
                         {
                             AnswerCount = 3,
-                            AnswerId = "1",
                             AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
                                 {
                                     {"1", new QuestionStatistic {ChoicesFrequencies = new[] {5, 1}}}
                                 }
-                        },
-                    new AnswerStatistic
+                        }},
+                    {"2", new AnswerStatistic
                         {
                             AnswerCount = 2,
-                            AnswerId = "2",
                             AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
                                 {
                                     {"3", new QuestionStatistic {ChoicesFrequencies = new[] {1, 5}}}
                                 }
-                        },
-                    new AnswerStatistic
+                        }},
+                    {"3", new AnswerStatistic
                         {
                             AnswerCount = 2,
-                            AnswerId = "3",
                             AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
                                 {
                                     {"1", new QuestionStatistic {ChoicesFrequencies = new[] {5, 1}}},
                                     {"2", new QuestionStatistic {ChoicesFrequencies = new[] {5, 1}}},
                                     {"3", new QuestionStatistic {ChoicesFrequencies = new[] {5, 1}}}
                                 }
-                        }
+                        }}
                 }, 2);
         }
 

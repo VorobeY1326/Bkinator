@@ -1,4 +1,4 @@
-﻿@model Bkinator.Answer
+﻿@model Tuple<string, Bkinator.Answer>
 
 @{
     ViewBag.Title = "Bkinator Answer";
@@ -6,6 +6,10 @@
 
 <h2>Я думаю, это:</h2>
 
-<p><b>@Model.Text</b></p>
+<p><b>@Model.Item2.Text</b></p>
 
-<p>@Model.Description</p>
+<p>@Model.Item2.Description</p>
+
+<p>Я угадал?</p>
+<p>@Html.ActionLink("Да", "AnswerCorrect", "Main", new { answerId = Model.Item1 }, new object())</p>
+<p>@Html.ActionLink("Нет", "TryAnotherAnswer")</p>

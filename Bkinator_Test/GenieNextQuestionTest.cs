@@ -10,18 +10,17 @@ namespace Bkinator_Test
         [Test]
         public void LastQuestionRemainsTest()
         {
-            var knowledgeBase = new List<AnswerStatistic>
+            var knowledgeBase = new Dictionary<string, AnswerStatistic>
                 {
-                    new AnswerStatistic
+                    {"1", new AnswerStatistic
                         {
-                            AnswerId = "1",
                             AnswerCount = 1,
                             AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
                                 {
                                     {"1", new QuestionStatistic {ChoicesFrequencies = new[] {5, 1}}},
                                     {"2", new QuestionStatistic {ChoicesFrequencies = new[] {1, 1}}}
                                 }
-                        }
+                        }}
                 };
             var genie = new Genie(knowledgeBase, 2);
             var answeredQuestions = new List<AnsweredQuestion>
@@ -35,18 +34,26 @@ namespace Bkinator_Test
         [Test]
         public void NoQuestionsAskedTest()
         {
-            var knowledgeBase = new List<AnswerStatistic>
+            var knowledgeBase = new Dictionary<string, AnswerStatistic>
                 {
-                    new AnswerStatistic
+                    {"1", new AnswerStatistic
                         {
-                            AnswerId = "1",
                             AnswerCount = 1,
                             AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
                                 {
                                     {"1", new QuestionStatistic {ChoicesFrequencies = new[] {1, 1}}},
                                     {"2", new QuestionStatistic {ChoicesFrequencies = new[] {1, 5}}}
                                 }
-                        }
+                        }},
+                    {"2", new AnswerStatistic
+                        {
+                            AnswerCount = 1,
+                            AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
+                                {
+                                    {"1", new QuestionStatistic {ChoicesFrequencies = new[] {1, 1}}},
+                                    {"2", new QuestionStatistic {ChoicesFrequencies = new[] {1, 1}}}
+                                }
+                        }}
                 };
             var genie = new Genie(knowledgeBase, 2);
             var answeredQuestions = new List<AnsweredQuestion>();
@@ -57,17 +64,16 @@ namespace Bkinator_Test
         [Test]
         public void NoQuestionsRemainedTest()
         {
-            var knowledgeBase = new List<AnswerStatistic>
+            var knowledgeBase = new Dictionary<string, AnswerStatistic>
                 {
-                    new AnswerStatistic
+                    {"1", new AnswerStatistic
                         {
-                            AnswerId = "1",
                             AnswerCount = 1,
                             AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
                                 {
                                     {"1", new QuestionStatistic {ChoicesFrequencies = new[] {1, 1}}}
                                 }
-                        }
+                        }}
                 };
             var genie = new Genie(knowledgeBase, 2);
             var answeredQuestions = new List<AnsweredQuestion> {new AnsweredQuestion {Choise = 1, QuestionId = "1"}};
@@ -78,19 +84,30 @@ namespace Bkinator_Test
         [Test]
         public void SimpleEntropyTest()
         {
-            var knowledgeBase = new List<AnswerStatistic>
+            var knowledgeBase = new Dictionary<string, AnswerStatistic>
                 {
-                    new AnswerStatistic
-                        {
-                            AnswerId = "1",
-                            AnswerCount = 1,
-                            AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
-                                {
-                                    {"1", new QuestionStatistic {ChoicesFrequencies = new[] {2, 2, 1}}},
-                                    {"2", new QuestionStatistic {ChoicesFrequencies = new[] {1, 2, 2}}},
-                                    {"3", new QuestionStatistic {ChoicesFrequencies = new[] {1, 10, 1}}},
-                                }
-                        }
+                    {
+                        "1", new AnswerStatistic
+                            {
+                                AnswerCount = 1,
+                                AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
+                                    {
+                                        {"1", new QuestionStatistic {ChoicesFrequencies = new[] {2, 2, 1}}},
+                                        {"2", new QuestionStatistic {ChoicesFrequencies = new[] {1, 2, 2}}},
+                                        {"3", new QuestionStatistic {ChoicesFrequencies = new[] {1, 10, 1}}},
+                                    }
+                            }
+                    },
+                    {
+                        "2", new AnswerStatistic
+                            {
+                                AnswerCount = 1,
+                                AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
+                                    {
+                                        {"1", new QuestionStatistic {ChoicesFrequencies = new[] {1, 1, 1}}}
+                                    }
+                            }
+                    }
                 };
             var genie = new Genie(knowledgeBase, 3);
             var answeredQuestions = new List<AnsweredQuestion> {new AnsweredQuestion {Choise = 1, QuestionId = "2"}};
@@ -101,32 +118,34 @@ namespace Bkinator_Test
         [Test]
         public void ComplexEntropyTest()
         {
-            var knowledgeBase = new List<AnswerStatistic>
+            var knowledgeBase = new Dictionary<string, AnswerStatistic>
                 {
-                    new AnswerStatistic
-                        {
-                            AnswerId = "1",
-                            AnswerCount = 1,
-                            AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
-                                {
-                                    {"1", new QuestionStatistic {ChoicesFrequencies = new[] {1, 5}}},
-                                    {"2", new QuestionStatistic {ChoicesFrequencies = new[] {1, 1}}},
-                                    {"3", new QuestionStatistic {ChoicesFrequencies = new[] {1, 5}}}
-                                }
-                        },
-                        new AnswerStatistic
-                        {
-                            AnswerId = "2",
-                            AnswerCount = 1,
-                            AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
-                                {
-                                    {"1", new QuestionStatistic {ChoicesFrequencies = new[] {1, 1}}},
-                                    {"2", new QuestionStatistic {ChoicesFrequencies = new[] {5, 1}}},
-                                    {"3", new QuestionStatistic {ChoicesFrequencies = new[] {5, 1}}}
-                                }
-                        }
+                    {
+                        "1", new AnswerStatistic
+                            {
+                                AnswerCount = 1,
+                                AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
+                                    {
+                                        {"1", new QuestionStatistic {ChoicesFrequencies = new[] {1, 5, 1, 1}}},
+                                        {"2", new QuestionStatistic {ChoicesFrequencies = new[] {1, 1, 1, 1}}},
+                                        {"3", new QuestionStatistic {ChoicesFrequencies = new[] {1, 5, 1, 1}}}
+                                    }
+                            }
+                    },
+                    {
+                        "2", new AnswerStatistic
+                            {
+                                AnswerCount = 1,
+                                AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>
+                                    {
+                                        {"1", new QuestionStatistic {ChoicesFrequencies = new[] {1, 1, 1, 1}}},
+                                        {"2", new QuestionStatistic {ChoicesFrequencies = new[] {5, 1, 1, 1}}},
+                                        {"3", new QuestionStatistic {ChoicesFrequencies = new[] {5, 1, 1, 1}}}
+                                    }
+                            }
+                    }
                 };
-            var genie = new Genie(knowledgeBase, 2);
+            var genie = new Genie(knowledgeBase, 4);
             var answeredQuestions = new List<AnsweredQuestion>();
             var nextQuestionId = genie.GetNextQuestionId(answeredQuestions, genie.GetAnswerGuesses(answeredQuestions));
             Assert.AreEqual("3", nextQuestionId);

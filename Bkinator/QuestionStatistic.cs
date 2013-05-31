@@ -11,7 +11,7 @@ namespace Bkinator
 
         [ProtoMember(2)]
         private int? choicesFrequenciesTotalCached;
-
+         // TODO methods that autoadd cached value
         public int ChoicesFrequenciesTotal
         {
             get

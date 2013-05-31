@@ -16,11 +16,11 @@ namespace Bkinator
     public class Genie
     {
         [ProtoMember(1)]
-        private readonly IList<AnswerStatistic> knowledgeBase;
+        private readonly IDictionary<string, AnswerStatistic> answerStatistics;
         [ProtoMember(2)]
-        private readonly IList<string> questionIds;
+        private readonly IDictionary<string, QuestionStatistic> questionStatistics;
         [ProtoMember(3)]
-        private readonly double answersGuessedCount;
+        private int answersGuessedCount;
         [ProtoMember(4)]
         private readonly int answeringChoicesCount;
 
@@ -31,28 +31,40 @@ namespace Bkinator
         {}
 // ReSharper restore UnusedMember.Local
 
-        public Genie(IList<AnswerStatistic> knowledgeBase, int answeringChoicesCount)
+        public Genie(IDictionary<string, AnswerStatistic> answerStatistics, int answeringChoicesCount)
         {
-            this.knowledgeBase = knowledgeBase;
+            this.answerStatistics = answerStatistics;
             this.answeringChoicesCount = answeringChoicesCount;
-            answersGuessedCount = knowledgeBase.Sum(s => s.AnswerCount);
-            questionIds = knowledgeBase.SelectMany(s => s.AnsweredQuestionsById.Keys).Distinct().ToList();
+            answersGuessedCount = answerStatistics.Sum(s => s.Value.AnswerCount);
+            questionStatistics = answerStatistics.SelectMany(s => s.Value.AnsweredQuestionsById)
+                                    .GroupBy(p => p.Key)
+                                    .ToDictionary(g => g.Key, g => new QuestionStatistic
+                                        {
+                                            ChoicesFrequencies = g.Aggregate(new int[answeringChoicesCount], (curr, p) =>
+                                                {
+                                                    for (int i = 0; i < answeringChoicesCount; i++)
+                                                    {
+                                                        curr[i] += p.Value.ChoicesFrequencies[i];
+                                                    }
+                                                    return curr;
+                                                })
+                                        });
         }
 
         public IList<AnswerGuess> GetAnswerGuesses(IList<AnsweredQuestion> answeredQuestions)
         {
             var answerGuesses = new List<AnswerGuess>();
             double answeredQuestionsProbability = 0;
-            foreach (var answerStatistic in knowledgeBase)
+            foreach (var answerStatistic in answerStatistics)
             {
                 var answeredQuestionsProbabilityRelativeToAnswer = answeredQuestions.Aggregate(1.0,
-                    (curr, q) => curr * GetAnsweringFrequency(answerStatistic, q) / GetTotalAnsweringFrequency(answerStatistic, q));
-                var answerProbability = answeredQuestionsProbabilityRelativeToAnswer * answerStatistic.AnswerCount / answersGuessedCount;
+                    (curr, q) => curr * GetAnsweringFrequency(answerStatistic.Value, q) / GetTotalAnsweringFrequency(answerStatistic.Value, q));
+                var answerProbability = answeredQuestionsProbabilityRelativeToAnswer * answerStatistic.Value.AnswerCount / answersGuessedCount;
                 answerGuesses.Add(new AnswerGuess
                     {
-                        AnswerId = answerStatistic.AnswerId,
+                        AnswerId = answerStatistic.Key,
                         Probability = answerProbability,
-                        AnswerStatistic = answerStatistic
+                        AnswerStatistic = answerStatistic.Value
                     });
                 answeredQuestionsProbability += answerProbability;
             }
@@ -68,7 +80,7 @@ namespace Bkinator
             string nextQuestionId = null;
             double minQuestionEntropy = double.MaxValue;
             var answeredQuestionIds = new HashSet<string>(answeredQuestions.Select(q => q.QuestionId));
-            foreach (var questionId in questionIds)
+            foreach (var questionId in questionStatistics.Keys)
             {
                 if (answeredQuestionIds.Contains(questionId))
                     continue;
@@ -76,12 +88,17 @@ namespace Bkinator
                 for (int i = 0; i < answeringChoicesCount; i++)
                 {
                     var answeredQuestion = new AnsweredQuestion { Choise = i, QuestionId = questionId };
-                    foreach (var answerGuess in answerGuesses)
+                    var probabilities = answerGuesses.Select(ag => ag.Probability *
+                                                                   GetAnsweringFrequency(ag.AnswerStatistic,answeredQuestion) /
+                                                                   GetTotalAnsweringFrequency(ag.AnswerStatistic, answeredQuestion))
+                                                                   .ToList();
+                    var totalProbability = probabilities.Sum();
+                    var answeredQuestionProbability = (double)questionStatistics[questionId].ChoicesFrequencies[i] /
+                                                      questionStatistics[questionId].ChoicesFrequenciesTotal;
+                    foreach (var probability in probabilities)
                     {
-                        double probability = answerGuess.Probability *
-                            GetAnsweringFrequency(answerGuess.AnswerStatistic, answeredQuestion) /
-                            GetTotalAnsweringFrequency(answerGuess.AnswerStatistic, answeredQuestion);
-                        entropy += -probability * Math.Log(probability, 2.0);
+                        double correctedProbability = probability / totalProbability;
+                        entropy += -correctedProbability * Math.Log(correctedProbability, 2.0) * answeredQuestionProbability;
                     }
                 }
                 if (entropy < minQuestionEntropy)
@@ -100,12 +117,58 @@ namespace Bkinator
             return answerStatistic.AnsweredQuestionsById[answeredQuestion.QuestionId].ChoicesFrequencies[answeredQuestion.Choise];
         }
 
-
         private int GetTotalAnsweringFrequency(AnswerStatistic answerStatistic, AnsweredQuestion answeredQuestion)
         {
             if (!answerStatistic.AnsweredQuestionsById.ContainsKey(answeredQuestion.QuestionId))
                 return answeringChoicesCount;
             return answerStatistic.AnsweredQuestionsById[answeredQuestion.QuestionId].ChoicesFrequenciesTotal;
+        }
+
+        public void UpdateStatisticsByAnswerGuessed(string answerId, IList<AnsweredQuestion> answeredQuestions)
+        {
+            answersGuessedCount++;
+            if (!answerStatistics.ContainsKey(answerId))
+                answerStatistics.Add(answerId, new AnswerStatistic
+                    {
+                        AnswerCount = 1,
+                        AnsweredQuestionsById = new Dictionary<string, QuestionStatistic>()
+                    });
+            var answerStatistic = answerStatistics[answerId];
+            answerStatistic.AnswerCount++;
+            foreach (var answeredQuestion in answeredQuestions)
+            {
+                if (!answerStatistic.AnsweredQuestionsById.ContainsKey(answeredQuestion.QuestionId))
+                    answerStatistic.AnsweredQuestionsById.Add(answeredQuestion.QuestionId, GetEmptyQuestionStatistic());
+                answerStatistic.AnsweredQuestionsById[answeredQuestion.QuestionId].ChoicesFrequencies[answeredQuestion.Choise]++;
+                answerStatistic.AnsweredQuestionsById[answeredQuestion.QuestionId].ChoicesFrequenciesTotal++;
+                questionStatistics[answeredQuestion.QuestionId].ChoicesFrequencies[answeredQuestion.Choise]++;
+            }
+        }
+
+        public void UpdateStatisticsByQuestionAdded(string questionId, IList<Tuple<string, int>> knownAnswers)
+        {
+            foreach (var knownAnswer in knownAnswers)
+            {
+                var answerStatistic = answerStatistics[knownAnswer.Item1];
+                if (!answerStatistic.AnsweredQuestionsById.ContainsKey(questionId))
+                    answerStatistic.AnsweredQuestionsById.Add(questionId, GetEmptyQuestionStatistic());
+                answerStatistic.AnsweredQuestionsById[questionId].ChoicesFrequencies[knownAnswer.Item2]++;
+            }
+            questionStatistics.Add(questionId,
+                                   knownAnswers.Select(ka => ka.Item2).Aggregate(GetEmptyQuestionStatistic(),
+                                                                                 (curr, i) =>
+                                                                                     {
+                                                                                         curr.ChoicesFrequencies[i]++;
+                                                                                         return curr;
+                                                                                     }));
+        }
+
+        private QuestionStatistic GetEmptyQuestionStatistic()
+        {
+            var frequencies = new int[answeringChoicesCount];
+            for (int i = 0; i < answeringChoicesCount; i++)
+                frequencies[i] = 1;
+            return new QuestionStatistic{ ChoicesFrequencies = frequencies };
         }
     }
 }

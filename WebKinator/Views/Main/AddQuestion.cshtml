@@ -1,0 +1,26 @@
+﻿@using System.Web.Mvc.Html
+@using WebKinator.Models
+@model AddQuestionModel
+
+@{
+    ViewBag.Title = "Добавить вопрос";
+    var selectList = AddQuestionModel.ChoicesExtended.Select(c => new SelectListItem {Text = c, Value = c}).ToList();
+    int i = 0;
+}
+
+<p>Можешь придумать свой вопрос, который выделяет загаданный тобой ответ от остальных:</p>
+
+@using(Html.BeginForm())
+{
+    <p>Вопрос: @Html.TextBoxFor(m => m.Question)</p>
+    <p>Ответы:</p>
+    foreach (var answer in Model.AnswerIdsAndNames)
+    {
+        <p>@answer.Item2: @Html.DropDownList("Answers[" + i + "].Value", selectList)</p>
+        <input type="hidden" name="Answers[@i].Key" value="@answer.Item1"/>
+        i++;
+    }
+    <input type="submit" value="Добавить вопрос"/>
+}
+
+А можешь не придумывать и сыграть @Html.ActionLink("ещё раз", "Index") :)

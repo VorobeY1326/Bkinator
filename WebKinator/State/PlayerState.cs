@@ -20,12 +20,14 @@ namespace WebKinator.State
                 var answeredQuestions = new List<AnsweredQuestion>();
                 var answerGuesses = genie.GetAnswerGuesses(answeredQuestions);
                 var currQuestionId = genie.GetNextQuestionId(answeredQuestions, answerGuesses);
-                return new PlayerState
+                var newState = new PlayerState
                     {
                         AnswerGuesses = answerGuesses,
                         AnsweredQuestions = answeredQuestions,
                         CurrentQuestionId = currQuestionId
                     };
+                session[playerStateName] = newState;
+                return newState;
             }
             return (PlayerState) state;
         }

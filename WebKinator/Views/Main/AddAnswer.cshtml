@@ -1,0 +1,14 @@
+﻿@{
+    ViewBag.Title = "Добавить ответ";
+}
+
+<h2>Ты победил меня..</h2>
+
+<p>Что же ты загадывал?</p>
+
+@using (Html.BeginForm())
+{
+    <p>Ответ: @Html.TextBox("answer", "")</p>
+    <p>Описание: @Html.TextBox("description", "")</p>
+    <p><input type="submit" value="Отправить"/></p>
+}
